@@ -35,7 +35,6 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* Background */
     .bg{
       position:fixed;
       inset:0;
@@ -138,13 +137,13 @@
       background: radial-gradient(circle at 35% 35%, #fff, var(--gold));
       box-shadow: 0 0 18px var(--gold-glow);
       opacity:.85;
+      flex-shrink: 0;
     }
 
     .statusText{
       font-size: 13px;
       color: rgba(255,255,255,.78);
       letter-spacing: .02em;
-      white-space: nowrap;
     }
 
     .grid{
@@ -203,7 +202,7 @@
       background:
         radial-gradient(560px 220px at 20% 0%, rgba(255,211,106,.24), transparent 52%),
         radial-gradient(440px 220px at 80% 0%, rgba(255,211,106,.16), transparent 55%);
-      opacity:.0;
+      opacity:0;
       transition: opacity .25s ease;
       filter: blur(8px);
       pointer-events:none;
@@ -211,6 +210,7 @@
 
     .player-card:hover::before{ opacity:.65; }
 
+    /* FIX: Winner card glow */
     .player-card.winner{
       border-color: rgba(255,211,106,.85);
       box-shadow:
@@ -220,9 +220,15 @@
       background: linear-gradient(180deg, rgba(12,12,18,.65), rgba(12,12,18,.28));
     }
 
-    .player-card.winner .winnerGlow{
-      opacity:1;
-      transform: scale(1);
+    .player-card.winner .winnerGlow{ opacity:1; transform: scale(1); }
+
+    /* FIX: Loser card highlight (untuk menandai kartu yang diklik kedua) */
+    .player-card.loser{
+      border-color: rgba(255,120,100,.55);
+      box-shadow:
+        0 0 0 1px rgba(255,120,100,.12) inset,
+        0 18px 70px rgba(0,0,0,.60),
+        0 0 70px rgba(255,120,100,.14);
     }
 
     .winnerGlow{
@@ -257,6 +263,7 @@
       display:flex;
       align-items:center;
       gap:10px;
+      margin-bottom: 6px;
     }
 
     .nameEdit{
@@ -272,7 +279,7 @@
       padding: 10px 12px;
       transition: box-shadow .25s ease, border-color .25s ease;
       display:inline-block;
-      user-select:none;
+      width: 100%;
       cursor:text;
       outline:none;
     }
@@ -328,6 +335,7 @@
       letter-spacing:.02em;
     }
 
+    /* FIX: Winner pill sekarang pakai visibility bukan opacity saja */
     .winnerPill{
       align-self:flex-start;
       display:inline-flex;
@@ -342,12 +350,17 @@
       text-shadow: 0 0 18px rgba(255,211,106,.12);
       font-weight: 900;
       font-size: 12px;
-      opacity:0;
+      visibility: hidden;
+      opacity: 0;
       transform: translateY(-4px);
-      transition: opacity .25s ease, transform .25s ease;
+      transition: opacity .3s ease, transform .3s ease;
     }
 
-    .player-card.winner .winnerPill{ opacity:1; transform: translateY(0); }
+    .winnerPill.visible{
+      visibility: visible;
+      opacity: 1;
+      transform: translateY(0);
+    }
 
     .controls{
       margin-top: 18px;
@@ -411,20 +424,20 @@
 
     /* Overlays & Modal */
     .overlay{
-      position:fixed;
-      inset:0;
-      background: rgba(0,0,0,.58);
-      backdrop-filter: blur(10px);
-      z-index:50;
-      display:none;
-      align-items:center;
-      justify-content:center;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.75);
+      backdrop-filter: blur(8px);
+      z-index: 99999;
+      display: none;
+      align-items: center;
+      justify-content: center;
       padding: 18px;
-      animation: overlayIn .22s ease both;
     }
-    .overlay.show{ display:flex; }
 
-    @keyframes overlayIn{ from{ opacity:0; } to{ opacity:1; } }
+    .overlay.show{
+      display: flex !important;
+    }
 
     .modal{
       width: min(560px, 100%);
@@ -437,12 +450,10 @@
         0 0 0 1px rgba(255,211,106,.06) inset;
       backdrop-filter: blur(16px);
       overflow:hidden;
-      transform: translateY(10px) scale(.98);
-      opacity:0;
       animation: modalIn .28s cubic-bezier(.2,.9,.2,1.1) both;
     }
 
-    @keyframes modalIn{ to{ transform: translateY(0) scale(1); opacity:1; } }
+    @keyframes modalIn{ from{ transform: translateY(10px) scale(.98); opacity:0; } to{ transform: translateY(0) scale(1); opacity:1; } }
 
     .modal-header{
       padding: 18px 18px 12px;
@@ -534,14 +545,6 @@
 
     .keypad-wrap{ display:flex; flex-direction:column; gap: 12px; }
 
-    .keypad-title{
-      margin: 0;
-      color: rgba(255,255,255,.78);
-      line-height: 1.7;
-      font-size: 14px;
-      text-align:center;
-    }
-
     .keypad{
       display:grid;
       grid-template-columns: repeat(3, 1fr);
@@ -581,7 +584,6 @@
     .display .label{ color: rgba(255,255,255,.70); font-size: 12px; letter-spacing:.04em; }
     .display .value{ font-size: 34px; font-weight: 900; color: rgba(255,255,255,.95); text-shadow: 0 0 26px rgba(255,211,106,.10); margin-top: 4px; }
 
-    /* Score animation */
     .pop-add{
       animation: addPop .45s ease both;
     }
@@ -591,7 +593,6 @@
       100%{ transform: scale(1); filter: brightness(1); }
     }
 
-    /* Trophy/Confetti */
     .leader-grid{
       display:grid;
       grid-template-columns: 1fr;
@@ -651,7 +652,7 @@
       display:grid;
       place-items:center;
       gap: 8px;
-      margin-bottom: 2px;
+      margin-bottom: 14px;
     }
 
     .trophyIcon{
@@ -689,12 +690,16 @@
       transition: transform .16s ease, box-shadow .25s ease, border-color .25s ease;
       user-select:none;
       touch-action: manipulation;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
     }
     .btn-secondary:hover{ transform: translateY(-2px); border-color: rgba(255,211,106,.62); box-shadow: 0 0 40px rgba(255,211,106,.14); }
     .btn-secondary:active{ transform: translateY(0) scale(.99); }
     .btn-secondary:focus-visible{ outline:none; box-shadow: 0 0 0 4px var(--focus); }
 
-    /* Confetti */
     .confetti{
       position: fixed;
       inset: 0;
@@ -710,7 +715,6 @@
       border-radius: 4px;
       background: rgba(255,211,106,.95);
       box-shadow: 0 0 18px rgba(255,211,106,.22);
-      transform: translateX(0);
       opacity:.95;
       animation: confettiFall 1.4s ease-in forwards;
     }
@@ -718,7 +722,6 @@
       to { transform: translateY(110vh) rotate(340deg); opacity:0; }
     }
 
-    /* Footer */
     footer{
       position:fixed;
       left:0; right:0; bottom: 14px;
@@ -740,7 +743,7 @@
     }
 
     @media (prefers-reduced-motion: reduce){
-      .badge, .player-card, .btn, .modal{ animation:none !important; transition:none !important; }
+      .player-card, .btn, .modal{ animation:none !important; transition:none !important; }
       canvas#shimmer{ display:none; }
       .trophyIcon{ animation:none !important; }
     }
@@ -760,42 +763,42 @@
         </div>
         <div class="status" aria-live="polite">
           <div class="statusDot" aria-hidden="true"></div>
-          <div class="statusText" id="statusText">Klik salah satu card player untuk memilih pemenang ronde.</div>
+          <div class="statusText" id="statusText">Tekan "Pilih Pemenang" lalu klik card pemenang.</div>
         </div>
       </div>
 
       <div class="grid" role="group" aria-label="Player Cards">
-        <section class="player-card lift" tabindex="0" data-player="p1" id="cardP1" aria-label="Player 1">
+        <!-- Player 1 -->
+        <section class="player-card" tabindex="0" data-player="p1" id="cardP1" aria-label="Player 1">
           <div class="winnerGlow" aria-hidden="true"></div>
           <div class="player-header">
             <div class="nameWrap">
               <div class="nameLabel">PLAYER 1</div>
               <div class="nameEdit" id="nameViewP1" role="button" tabindex="0">PLAYER 1</div>
-              <input class="nameInput" id="nameInputP1" style="display:none;" maxlength="24" />
+              <input class="nameInput" id="nameInputP1" style="display:none;" maxlength="24" placeholder="Nama pemain..." />
             </div>
           </div>
-
           <div class="player-body">
-            <div class="winnerPill" id="winnerPillP1">WINNER SELECTED</div>
-            <div class="pointsBig" aria-label="Total poin"> 
+            <div class="winnerPill" id="winnerPillP1">⭐ PEMENANG RONDE</div>
+            <div class="pointsBig" aria-label="Total poin">
               <span class="num" id="pointsP1">0</span>
             </div>
             <div class="pointsMeta">Total Poin</div>
           </div>
         </section>
 
-        <section class="player-card lift" tabindex="0" data-player="p2" id="cardP2" aria-label="Player 2">
+        <!-- Player 2 -->
+        <section class="player-card" tabindex="0" data-player="p2" id="cardP2" aria-label="Player 2">
           <div class="winnerGlow" aria-hidden="true"></div>
           <div class="player-header">
             <div class="nameWrap">
               <div class="nameLabel">PLAYER 2</div>
               <div class="nameEdit" id="nameViewP2" role="button" tabindex="0">PLAYER 2</div>
-              <input class="nameInput" id="nameInputP2" style="display:none;" maxlength="24" />
+              <input class="nameInput" id="nameInputP2" style="display:none;" maxlength="24" placeholder="Nama pemain..." />
             </div>
           </div>
-
           <div class="player-body">
-            <div class="winnerPill" id="winnerPillP2">WINNER SELECTED</div>
+            <div class="winnerPill" id="winnerPillP2">⭐ PEMENANG RONDE</div>
             <div class="pointsBig">
               <span class="num" id="pointsP2">0</span>
             </div>
@@ -805,44 +808,44 @@
       </div>
 
       <div class="controls">
-        <button class="btn" id="btnChooseWinner" type="button">Pilih Pemenang</button>
+        <button class="btn" id="btnChooseWinner" type="button">⚔️ Pilih Pemenang</button>
       </div>
-
       <div class="controls">
-        <button class="btn" id="btnEnd" type="button" style="max-width:360px;">Akhiri Permainan</button>
+        <button class="btn" id="btnEnd" type="button" style="max-width:360px;">🏆 Akhiri Permainan</button>
       </div>
     </div>
   </div>
 
   <!-- MODAL: Input Sisa Kartu -->
-  <div class="overlay" id="overlayCard" role="dialog" aria-modal="true">
+  <div class="overlay" id="overlayCard" role="dialog" aria-modal="true" aria-labelledby="titleCard">
     <div class="modal" role="document">
       <div class="modal-header">
-        <h3>Input Sisa Kartu</h3>
+        <h3 id="titleCard">Input Sisa Kartu</h3>
         <button class="close" type="button" id="closeCard" aria-label="Tutup">✕</button>
       </div>
       <div class="modal-body">
-        <p style="margin:0 0 14px; color: rgba(255,255,255,.76); text-align:center; line-height:1.7; font-size:14px;">
-          Pilih jenis kartu untuk pemain pemenang.
+        <p style="margin:0 0 14px; color: rgba(255,255,255,.76); text-align:center; line-height:1.7; font-size:14px;" id="cardModalDesc">
+          Pilih jenis kartu yang digunakan.
         </p>
         <div class="choice-grid">
-          <button class="choice" type="button" id="btnKartuBiasa" aria-label="Kartu Biasa">
+          <button class="choice" type="button" id="btnKartuBiasa" aria-label="Kartu Biasa - Kali 1">
             <div class="choice-left">
               <div class="sig" aria-hidden="true">•</div>
               <div>
                 <div class="choice-label">Kartu Biasa</div>
-                <div class="choice-sub">Kali 1</div>
+                <div class="choice-sub">× 1</div>
               </div>
             </div>
             <div class="arrow" aria-hidden="true">↗</div>
           </button>
 
-          <button class="choice" type="button" id="btnKartuPoker" aria-label="Kartu Poker">
+          <!-- FIX: Tambahkan choice-sub untuk Kartu Poker -->
+          <button class="choice" type="button" id="btnKartuPoker" aria-label="Kartu Poker - Kali 10">
             <div class="choice-left">
               <div class="sig" aria-hidden="true">♦</div>
               <div>
                 <div class="choice-label">Kartu Poker</div>
-                <div class="choice-sub">Kali 10</div>
+                <div class="choice-sub">× 10</div>
               </div>
             </div>
             <div class="arrow" aria-hidden="true">↗</div>
@@ -853,60 +856,56 @@
   </div>
 
   <!-- MODAL: Keypad -->
-  <div class="overlay" id="overlayKeypad" role="dialog" aria-modal="true">
+  <div class="overlay" id="overlayKeypad" role="dialog" aria-modal="true" aria-labelledby="titleKeypad">
     <div class="modal" role="document">
       <div class="modal-header">
-        <h3>Input Angka</h3>
+        <h3 id="titleKeypad">Input Sisa Kartu</h3>
         <button class="close" type="button" id="closeKeypad" aria-label="Tutup">✕</button>
       </div>
       <div class="modal-body">
         <div class="keypad-wrap">
           <div class="display" aria-live="polite">
-            <div class="label">Masukkan Jumlah Poin Tersisa</div>
+            <div class="label" id="keypadLabel">Masukkan jumlah sisa kartu</div>
             <div class="value" id="keypadValue">0</div>
           </div>
           <div class="keypad" aria-label="Keypad angka">
             <button class="key" type="button" data-k="1">1</button>
             <button class="key" type="button" data-k="2">2</button>
             <button class="key" type="button" data-k="3">3</button>
-
             <button class="key" type="button" data-k="4">4</button>
             <button class="key" type="button" data-k="5">5</button>
             <button class="key" type="button" data-k="6">6</button>
-
             <button class="key" type="button" data-k="7">7</button>
             <button class="key" type="button" data-k="8">8</button>
             <button class="key" type="button" data-k="9">9</button>
-
+            <!-- FIX: hapus cuma hapus digit terakhir -->
             <button class="key" type="button" data-k="0">0</button>
-            <button class="key" type="button" id="btnHapus" aria-label="Hapus">Hapus</button>
-            <button class="key" type="button" id="btnOk" aria-label="OK" style="color: rgba(255,255,255,.95); border-color: rgba(255,211,106,.52);">OK</button>
+            <button class="key" type="button" id="btnHapus" aria-label="Hapus digit terakhir">⌫</button>
+            <button class="key" type="button" id="btnOk" aria-label="Konfirmasi" style="color: rgba(255,255,255,.95); border-color: rgba(255,211,106,.52);">OK</button>
           </div>
-          <p style="margin:0; color: rgba(255,211,106,.75); text-align:center; font-size:13px; line-height:1.6;" id="multiplierText">Nilai akan dikali 1 atau 10.</p>
+          <p style="margin:0; color: rgba(255,211,106,.75); text-align:center; font-size:13px; line-height:1.6;" id="multiplierText">Pilih jenis kartu untuk melihat pengali.</p>
         </div>
       </div>
     </div>
   </div>
 
   <!-- MODAL: Leaderboard -->
-  <div class="overlay" id="overlayLeader" role="dialog" aria-modal="true">
+  <div class="overlay" id="overlayLeader" role="dialog" aria-modal="true" aria-labelledby="titleLeader">
     <div class="modal" role="document">
       <div class="modal-header">
-        <h3>Leaderboard</h3>
+        <h3 id="titleLeader">Leaderboard</h3>
         <button class="close" type="button" id="closeLeader" aria-label="Tutup">✕</button>
       </div>
       <div class="modal-body">
         <div class="leader-summary">
           <div class="trophyWrap">
-            <div class="trophyIcon" id="trophyIcon" aria-hidden="true">🏆</div>
+            <div class="trophyIcon" aria-hidden="true">🏆</div>
             <div class="leader-winner-name" id="leaderWinner">Pemenang</div>
           </div>
         </div>
-
         <div class="leader-grid" id="leaderGrid" aria-label="Daftar skor"></div>
-
         <div class="leader-actions">
-          <button class="btn" type="button" id="btnAgain" style="width:min(320px,100%);">Main Lagi</button>
+          <button class="btn" type="button" id="btnAgain" style="width:min(220px,100%);">Main Lagi</button>
           <a class="btn-secondary" href="index.html" id="btnHome">Kembali ke Home</a>
         </div>
       </div>
@@ -921,100 +920,293 @@
 
   <script>
     (function(){
-      const BG = 'https://thumb.viva.id/vivabandung/665x374/2022/08/23/6304dfa47bbbc-ilustrasi-judi-online_bandung.jpg';
 
+      // ── STATE ────────────────────────────────────────────────
       const state = {
         p1: { name: 'PLAYER 1', points: 0 },
         p2: { name: 'PLAYER 2', points: 0 },
-        winnerKey: null,     // 'p1' or 'p2'
-        loserKey: null,
-        multiplier: 1,      // 1 or 10
+        winnerKey: null,   // 'p1' | 'p2'
+        loserKey: null,    // 'p1' | 'p2'
+        multiplier: 1,
+        inputNumber: 0,
         editing: null,
+        awaitingWinner: false,  // FIX: masuk ke state agar lebih mudah dikelola
       };
 
-      const statusText = document.getElementById('statusText');
-
-      const cardP1 = document.getElementById('cardP1');
-      const cardP2 = document.getElementById('cardP2');
-
-      const nameViewP1 = document.getElementById('nameViewP1');
-      const nameViewP2 = document.getElementById('nameViewP2');
-      const nameInputP1 = document.getElementById('nameInputP1');
-      const nameInputP2 = document.getElementById('nameInputP2');
-
-      const winnerPillP1 = document.getElementById('winnerPillP1');
-      const winnerPillP2 = document.getElementById('winnerPillP2');
-
-      const pointsElP1 = document.getElementById('pointsP1');
-      const pointsElP2 = document.getElementById('pointsP2');
-
+      // ── DOM REFS ─────────────────────────────────────────────
+      const statusText    = document.getElementById('statusText');
+      const cardP1        = document.getElementById('cardP1');
+      const cardP2        = document.getElementById('cardP2');
+      const nameViewP1    = document.getElementById('nameViewP1');
+      const nameViewP2    = document.getElementById('nameViewP2');
+      const nameInputP1   = document.getElementById('nameInputP1');
+      const nameInputP2   = document.getElementById('nameInputP2');
+      const winnerPillP1  = document.getElementById('winnerPillP1');
+      const winnerPillP2  = document.getElementById('winnerPillP2');
+      const pointsElP1    = document.getElementById('pointsP1');
+      const pointsElP2    = document.getElementById('pointsP2');
       const btnChooseWinner = document.getElementById('btnChooseWinner');
-      const btnEnd = document.getElementById('btnEnd');
-
-      const overlayCard = document.getElementById('overlayCard');
-      const closeCard = document.getElementById('closeCard');
+      const btnEnd        = document.getElementById('btnEnd');
+      const overlayCard   = document.getElementById('overlayCard');
+      const closeCard     = document.getElementById('closeCard');
       const btnKartuBiasa = document.getElementById('btnKartuBiasa');
       const btnKartuPoker = document.getElementById('btnKartuPoker');
-
       const overlayKeypad = document.getElementById('overlayKeypad');
-      const closeKeypad = document.getElementById('closeKeypad');
-      const keypadValue = document.getElementById('keypadValue');
-      const btnHapus = document.getElementById('btnHapus');
-      const btnOk = document.getElementById('btnOk');
+      const closeKeypad   = document.getElementById('closeKeypad');
+      const keypadValue   = document.getElementById('keypadValue');
       const multiplierText = document.getElementById('multiplierText');
-
+      const btnHapus      = document.getElementById('btnHapus');
+      const btnOk         = document.getElementById('btnOk');
       const overlayLeader = document.getElementById('overlayLeader');
-      const closeLeader = document.getElementById('closeLeader');
-      const leaderGrid = document.getElementById('leaderGrid');
-      const leaderWinner = document.getElementById('leaderWinner');
-      const btnAgain = document.getElementById('btnAgain');
+      const closeLeader   = document.getElementById('closeLeader');
+      const leaderGrid    = document.getElementById('leaderGrid');
+      const leaderWinner  = document.getElementById('leaderWinner');
+      const btnAgain      = document.getElementById('btnAgain');
+      const confettiEl    = document.getElementById('confetti');
 
-      const confettiEl = document.getElementById('confetti');
-
+      // ── OVERLAY HELPERS ──────────────────────────────────────
       function showOverlay(el){ el.classList.add('show'); }
       function hideOverlay(el){ el.classList.remove('show'); }
 
-      function setWinnerUI(){
-        const p1IsWinner = state.winnerKey === 'p1';
-        const p2IsWinner = state.winnerKey === 'p2';
+      // ── UI UPDATE ─────────────────────────────────────────────
+      function setStatus(msg){ statusText.textContent = msg; }
 
-        cardP1.classList.toggle('winner', p1IsWinner);
-        cardP2.classList.toggle('winner', p2IsWinner);
+      /**
+       * FIX: Update semua elemen UI berdasarkan state saat ini.
+       * - winner card class & glow
+       * - loser card class
+       * - winner pill visibility
+       */
+      function updateCardUI(){
+        const p1Win = state.winnerKey === 'p1';
+        const p2Win = state.winnerKey === 'p2';
+        const p1Lose = state.loserKey === 'p1';
+        const p2Lose = state.loserKey === 'p2';
 
-        winnerPillP1.style.display = p1IsWinner ? 'block' : 'none';
-        winnerPillP2.style.display = p2IsWinner ? 'block' : 'none';
+        cardP1.classList.toggle('winner', p1Win);
+        cardP2.classList.toggle('winner', p2Win);
+        cardP1.classList.toggle('loser',  p1Lose);
+        cardP2.classList.toggle('loser',  p2Lose);
+
+        // FIX: pakai class .visible agar tidak konflik antara display dan opacity
+        winnerPillP1.classList.toggle('visible', p1Win);
+        winnerPillP2.classList.toggle('visible', p2Win);
       }
 
+      /**
+       * Reset state ronde (bukan skor keseluruhan).
+       */
       function resetRound(){
-        state.winnerKey = null;
-        state.loserKey = null;
-        state.multiplier = 1;
-        setWinnerUI();
-        statusText.textContent = 'Klik salah satu card player untuk memilih pemenang ronde.';
+        state.winnerKey   = null;
+        state.loserKey    = null;
+        state.multiplier  = 1;
+        state.inputNumber = 0;
+        state.awaitingWinner = false;
+        updateCardUI();
+        setStatus('Tekan "Pilih Pemenang" lalu klik card pemenang.');
       }
 
-      function enableWinnerPick(){
-        statusText.textContent = 'Pilih Pemenang: klik salah satu card player.';
+      // ── CARD CLICK LOGIC ─────────────────────────────────────
+      /**
+       * FIX UTAMA:
+       * Sebelumnya, klik card tidak melakukan apa-apa kecuali setelah
+       * menekan tombol "Pilih Pemenang". Sekarang:
+       * - Fase 1 (awaitingWinner = true) → klik card = tetapkan pemenang
+       * - Fase 2 (winnerKey ada, loserKey belum) → klik card lawan = buka modal
+       * - Kalau klik card yang sama dengan winner di fase 2 → ingatkan user
+       */
+      function onCardClick(playerKey){
+        // Fase 1: Pilih pemenang
+        if(state.awaitingWinner){
+          state.winnerKey = playerKey;
+          state.loserKey  = null;
+          state.awaitingWinner = false;
+          updateCardUI();
+          const winName = state[playerKey].name;
+          setStatus(`Pemenang: ${winName}. Sekarang klik card lawan untuk input sisa kartu.`);
+          return;
+        }
+
+        // Fase 2: Pilih lawan (loser) untuk input kartu
+        if(state.winnerKey && !state.loserKey){
+          if(playerKey === state.winnerKey){
+            setStatus('❗ Pilih card LAWAN (bukan pemenang) untuk input sisa kartu.');
+            return;
+          }
+          state.loserKey = playerKey;
+          updateCardUI();
+          showOverlay(overlayCard);
+          return;
+        }
+
+        // Kalau tidak dalam mode apapun, beritahu user untuk tekan tombol dulu
+        setStatus('Tekan "Pilih Pemenang" terlebih dahulu.');
       }
 
-      function enableLoserClick(){
-        const winnerName = state.winnerKey ? state[state.winnerKey].name : '';
-        statusText.textContent = `Winner dipilih: ${winnerName}. Klik card lawan untuk input sisa kartu.`;
+      // Event listener untuk card click dan keyboard
+      [cardP1, cardP2].forEach(card => {
+        card.addEventListener('click', (e) => {
+          // Jangan trigger kalau yang diklik adalah name input/view
+          if(e.target.closest('.nameEdit') || e.target.closest('.nameInput')) return;
+          onCardClick(card.dataset.player);
+        });
+        card.addEventListener('keydown', (e) => {
+          if(e.key === 'Enter' || e.key === ' '){
+            if(e.target.closest('.nameEdit') || e.target.closest('.nameInput')) return;
+            e.preventDefault();
+            onCardClick(card.dataset.player);
+          }
+        });
+      });
+
+      // ── TOMBOL PILIH PEMENANG ────────────────────────────────
+      btnChooseWinner.addEventListener('click', () => {
+        // Reset sisa state ronde, masuk mode pilih pemenang
+        state.winnerKey  = null;
+        state.loserKey   = null;
+        state.awaitingWinner = true;
+        updateCardUI();
+        setStatus('Silakan klik card pemenang ronde ini.');
+      });
+
+      // ── NAME EDITING ─────────────────────────────────────────
+      function startEdit(which){
+        if(state.editing === which) return;
+
+        // Commit edit sebelumnya jika ada
+        if(state.editing) commitEdit(state.editing);
+
+        state.editing = which;
+        const isP1  = which === 'p1';
+        const view  = isP1 ? nameViewP1  : nameViewP2;
+        const input = isP1 ? nameInputP1 : nameInputP2;
+        input.value = isP1 ? state.p1.name : state.p2.name;
+        view.style.display  = 'none';
+        input.style.display = 'block';
+        input.classList.add('activeGlow');
+        input.focus();
+        input.select();
       }
 
-      function cardToPlayerKey(card){
-        return card.dataset.player;
+      function commitEdit(which){
+        const isP1  = which === 'p1';
+        const view  = isP1 ? nameViewP1  : nameViewP2;
+        const input = isP1 ? nameInputP1 : nameInputP2;
+        const raw   = (input.value || '').trim();
+        const safe  = raw.length ? raw.slice(0,24) : (isP1 ? 'PLAYER 1' : 'PLAYER 2');
+
+        if(isP1) state.p1.name = safe; else state.p2.name = safe;
+        view.textContent    = safe;
+        view.style.display  = 'inline-block';
+        input.style.display = 'none';
+        input.classList.remove('activeGlow');
+        state.editing = null;
       }
 
+      function cancelEdit(which){
+        const isP1  = which === 'p1';
+        const view  = isP1 ? nameViewP1  : nameViewP2;
+        const input = isP1 ? nameInputP1 : nameInputP2;
+        view.style.display  = 'inline-block';
+        input.style.display = 'none';
+        input.classList.remove('activeGlow');
+        state.editing = null;
+      }
+
+      nameViewP1.addEventListener('click', e => { e.stopPropagation(); startEdit('p1'); });
+      nameViewP2.addEventListener('click', e => { e.stopPropagation(); startEdit('p2'); });
+
+      nameViewP1.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); startEdit('p1'); } });
+      nameViewP2.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); startEdit('p2'); } });
+
+      nameInputP1.addEventListener('keydown', e => {
+        if(e.key==='Enter')  commitEdit('p1');
+        if(e.key==='Escape') cancelEdit('p1');
+      });
+      nameInputP2.addEventListener('keydown', e => {
+        if(e.key==='Enter')  commitEdit('p2');
+        if(e.key==='Escape') cancelEdit('p2');
+      });
+
+      document.addEventListener('pointerdown', e => {
+        if(!state.editing) return;
+        const input = state.editing === 'p1' ? nameInputP1 : nameInputP2;
+        const view  = state.editing === 'p1' ? nameViewP1  : nameViewP2;
+        if(e.target !== input && e.target !== view) commitEdit(state.editing);
+      });
+
+      // ── CLOSE OVERLAY ON OUTSIDE CLICK ──────────────────────
+      [overlayCard, overlayKeypad, overlayLeader].forEach(ov => {
+        ov.addEventListener('click', e => { if(e.target === ov) hideOverlay(ov); });
+      });
+
+      closeCard.addEventListener('click',   () => { hideOverlay(overlayCard);   state.loserKey = null; updateCardUI(); });
+      closeKeypad.addEventListener('click', () => { hideOverlay(overlayKeypad); state.loserKey = null; updateCardUI(); });
+      closeLeader.addEventListener('click', () => hideOverlay(overlayLeader));
+
+      // ── MODAL: PILIH JENIS KARTU ──────────────────────────────
+      function openKeypad(multiplier){
+        state.multiplier  = multiplier;
+        state.inputNumber = 0;
+        keypadValue.textContent = '0';
+        multiplierText.textContent = `Jumlah sisa kartu lawan × ${multiplier} = poin yang diperoleh.`;
+        showOverlay(overlayKeypad);
+      }
+
+      btnKartuBiasa.addEventListener('click', () => { hideOverlay(overlayCard); openKeypad(1);  });
+      btnKartuPoker.addEventListener('click', () => { hideOverlay(overlayCard); openKeypad(10); });
+
+      // ── KEYPAD ────────────────────────────────────────────────
+      document.querySelectorAll('.key[data-k]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const digit  = Number(btn.getAttribute('data-k'));
+          const next   = state.inputNumber * 10 + digit;
+          // Batasi maksimal 2 digit (0–99)
+          if(next > 99) return;
+          state.inputNumber = next;
+          keypadValue.textContent = String(state.inputNumber);
+        });
+      });
+
+      // FIX: Hapus seharusnya menghapus digit terakhir, bukan menghapus semua
+      btnHapus.addEventListener('click', () => {
+        state.inputNumber = Math.floor(state.inputNumber / 10);
+        keypadValue.textContent = String(state.inputNumber);
+      });
+
+      // ── KONFIRMASI INPUT KARTU ───────────────────────────────
+      btnOk.addEventListener('click', () => {
+        if(!state.winnerKey) return;
+
+        const gained     = state.inputNumber * state.multiplier;
+        const winnerKey  = state.winnerKey;
+        const winnerName = state[winnerKey].name;
+        const numEl      = winnerKey === 'p1' ? pointsElP1 : pointsElP2;
+
+        hideOverlay(overlayKeypad);
+
+        const prev = state[winnerKey].points;
+        const next = prev + gained;
+        state[winnerKey].points = next;
+
+        pointsAnim(numEl, next);
+
+        setStatus(`+${gained} poin untuk ${winnerName}! Ronde baru siap dimulai.`);
+
+        // Reset ronde setelah animasi selesai
+        setTimeout(resetRound, 800);
+      });
+
+      // ── ANIMASI POIN ─────────────────────────────────────────
       function pointsAnim(numEl, target){
-        const start = Number(numEl.textContent) || 0;
+        const start    = Number(numEl.textContent) || 0;
         const duration = 520;
-        const t0 = performance.now();
+        const t0       = performance.now();
 
         function step(now){
-          const p = Math.min(1, (now - t0) / duration);
-          const eased = 1 - Math.pow(1 - p, 3);
-          const val = Math.round(start + (target - start) * eased);
+          const p      = Math.min(1, (now - t0) / duration);
+          const eased  = 1 - Math.pow(1 - p, 3);
+          const val    = Math.round(start + (target - start) * eased);
           numEl.textContent = String(val);
           numEl.parentElement.classList.add('pop-add');
           if(p < 1) requestAnimationFrame(step);
@@ -1023,382 +1215,183 @@
         requestAnimationFrame(step);
       }
 
-      // Winner/Loser mechanic
-      let awaitingWinner = false;
+      // ── AKHIRI PERMAINAN / LEADERBOARD ───────────────────────
+      btnEnd.addEventListener('click', () => {
+        const p1pts  = state.p1.points;
+        const p2pts  = state.p2.points;
 
-      function onCardClick(playerKey){
-        if(awaitingWinner){
-          state.winnerKey = playerKey;
-          setWinnerUI();
-          awaitingWinner = false;
-          enableLoserClick();
-          return;
-        }
-
-        if(state.winnerKey && !state.loserKey){
-          // must be opponent
-          if(playerKey === state.winnerKey){
-            statusText.textContent = 'Pilih card lawan (bukan pemenang).';
-            return;
-          }
-          state.loserKey = playerKey;
-          // open modal to input cards
-          showOverlay(overlayCard);
-          return;
-        }
-      }
-
-      cardP1.addEventListener('click', ()=> onCardClick('p1'));
-      cardP2.addEventListener('click', ()=> onCardClick('p2'));
-
-      // Button choose winner triggers enable state
-      btnChooseWinner.addEventListener('click', ()=>{
-        // If round in middle, keep logic safe
-        state.loserKey = null;
-        state.multiplier = 1;
-        awaitingWinner = true;
-        setWinnerUI();
-        statusText.textContent = 'Pilih Pemenang: klik salah satu card player.';
-      });
-
-      // Name editing
-      function startEdit(which){
-        if(state.editing === which) return;
-        state.editing = which;
-
-        const isP1 = which === 'p1';
-        const view = isP1 ? nameViewP1 : nameViewP2;
-        const input = isP1 ? nameInputP1 : nameInputP2;
-
-        const currentName = (isP1 ? state.p1.name : state.p2.name) || view.textContent.trim();
-        input.value = currentName;
-
-        view.style.display = 'none';
-        input.style.display = 'block';
-        input.classList.add('activeGlow');
-        input.focus();
-        input.select();
-      }
-
-      function commitEdit(which){
-        const isP1 = which === 'p1';
-        const view = isP1 ? nameViewP1 : nameViewP2;
-        const input = isP1 ? nameInputP1 : nameInputP2;
-
-        const raw = (input.value || '').trim();
-        const safe = raw.length ? raw.slice(0,24) : (isP1 ? 'PLAYER 1' : 'PLAYER 2');
-
-        if(isP1) state.p1.name = safe; else state.p2.name = safe;
-
-        view.textContent = safe;
-        view.style.display = 'inline-block';
-        input.style.display = 'none';
-        input.classList.remove('activeGlow');
-        state.editing = null;
-
-        // update status text if needed
-        if(state.winnerKey === 'p1' || state.winnerKey === 'p2'){
-          enableLoserClick();
-        }
-      }
-
-      function cancelEdit(which){
-        const isP1 = which === 'p1';
-        const view = isP1 ? nameViewP1 : nameViewP2;
-        const input = isP1 ? nameInputP1 : nameInputP2;
-        input.value = '';
-        view.style.display = 'inline-block';
-        input.style.display = 'none';
-        input.classList.remove('activeGlow');
-        state.editing = null;
-      }
-
-      nameViewP1.addEventListener('click', (e)=>{ e.stopPropagation(); startEdit('p1'); });
-      nameViewP2.addEventListener('click', (e)=>{ e.stopPropagation(); startEdit('p2'); });
-
-      nameViewP1.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); startEdit('p1'); } });
-      nameViewP2.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); startEdit('p2'); } });
-
-      nameInputP1.addEventListener('keydown', (e)=>{
-        if(e.key==='Enter') commitEdit('p1');
-        if(e.key==='Escape') cancelEdit('p1');
-      });
-      nameInputP2.addEventListener('keydown', (e)=>{
-        if(e.key==='Enter') commitEdit('p2');
-        if(e.key==='Escape') cancelEdit('p2');
-      });
-
-      document.addEventListener('pointerdown', (e)=>{
-        if(!state.editing) return;
-        const input = state.editing === 'p1' ? nameInputP1 : nameInputP2;
-        const view = state.editing === 'p1' ? nameViewP1 : nameViewP2;
-        if(e.target !== input && e.target !== view){
-          commitEdit(state.editing);
-        }
-      });
-
-      // Overlay close on outside click
-      [overlayCard, overlayKeypad, overlayLeader].forEach(ov => {
-        ov.addEventListener('click', (e)=>{ if(e.target === ov) hideOverlay(ov); });
-      });
-
-      closeCard.addEventListener('click', ()=> hideOverlay(overlayCard));
-      closeKeypad.addEventListener('click', ()=> hideOverlay(overlayKeypad));
-      closeLeader.addEventListener('click', ()=> hideOverlay(overlayLeader));
-
-      // Card type selection
-      function openKeypadFor(multiplier){
-        state.multiplier = multiplier;
-        multiplierText.textContent = `Nilai dikali ${multiplier}.`;
-        keypadValue.textContent = '0';
-        state.inputNumber = 0;
-        showOverlay(overlayKeypad);
-      }
-
-      btnKartuBiasa.addEventListener('click', ()=>{ hideOverlay(overlayCard); openKeypadFor(1); });
-      btnKartuPoker.addEventListener('click', ()=>{ hideOverlay(overlayCard); openKeypadFor(10); });
-
-      // Keypad logic
-      state.inputNumber = 0;
-
-      function setKeypadDisplay(n){
-        keypadValue.textContent = String(n);
-      }
-
-      document.querySelectorAll('.key[data-k]').forEach(btn=>{
-        btn.addEventListener('click', ()=>{
-          const digit = btn.getAttribute('data-k');
-          // Build number but limit length
-          const current = state.inputNumber || 0;
-          let next;
-          if(String(current).length >= 2 && digit !== ''){
-            // keep manageable for UI
-          }
-          next = current * 10 + Number(digit);
-          if(next > 99) next = 99;
-          state.inputNumber = next;
-          setKeypadDisplay(next);
-        });
-      });
-
-      btnHapus.addEventListener('click', ()=>{
-        state.inputNumber = 0;
-        setKeypadDisplay(0);
-      });
-
-      btnOk.addEventListener('click', ()=>{
-        const base = Number(state.inputNumber || 0);
-        const gained = base * state.multiplier;
-        const winnerKey = state.winnerKey;
-        if(!winnerKey) return;
-
-        hideOverlay(overlayKeypad);
-
-        const numEl = winnerKey === 'p1' ? pointsElP1 : pointsElP2;
-        const prev = state[winnerKey].points;
-        const next = prev + gained;
-        state[winnerKey].points = next;
-
-        // animate points add
-        pointsAnim(numEl, next);
-
-        statusText.textContent = `Poin masuk ke ${state[winnerKey].name}. Ronde siap dimulai lagi.`;
-
-        // small delay then reset round for next
-        setTimeout(()=>{
-          state.loserKey = null;
-          state.multiplier = 1;
-          awaitingWinner = false;
-          resetRound();
-        }, 650);
-      });
-
-      // Leaderboard
-      function confettiGold(){
-        const count = 120;
-        confettiEl.innerHTML = '';
-        const colors = [
-          'rgba(255,211,106,.95)',
-          'rgba(247,183,51,.95)',
-          'rgba(255,235,170,.95)'
-        ];
-        const w = window.innerWidth;
-        for(let i=0;i<count;i++){
-          const el = document.createElement('i');
-          const left = Math.random() * w;
-          const delay = Math.random()*0.15;
-          const dur = 1.1 + Math.random()*0.9;
-          el.style.left = left + 'px';
-          el.style.background = colors[Math.floor(Math.random()*colors.length)];
-          el.style.animationDuration = dur + 's';
-          el.style.animationDelay = delay + 's';
-          el.style.transform = `translateY(0) rotate(${Math.random()*180}deg)`;
-          confettiEl.appendChild(el);
-        }
-        setTimeout(()=>{ confettiEl.innerHTML=''; }, 1800);
-      }
-
-      btnEnd.addEventListener('click', ()=>{
-        // winner by points
-        const p1 = state.p1.points;
-        const p2 = state.p2.points;
-        const wKey = p1 >= p2 ? 'p1' : 'p2';
-
-        leaderGrid.innerHTML = '';
+        // Tentukan pemenang berdasarkan total poin terbanyak
+        const wKey = p1pts >= p2pts ? 'p1' : 'p2';
 
         const entries = [
-          { key:'p1', name: state.p1.name, pts: state.p1.points, medal: '🥇' },
-          { key:'p2', name: state.p2.name, pts: state.p2.points, medal: '🥈' }
-        ].sort((a,b)=>b.pts - a.pts);
+          { key:'p1', name: state.p1.name, pts: p1pts },
+          { key:'p2', name: state.p2.name, pts: p2pts },
+        ].sort((a,b) => b.pts - a.pts);
 
-        entries.forEach((e, idx)=>{
+        leaderGrid.innerHTML = '';
+        entries.forEach((e, idx) => {
           const isWinner = e.key === wKey;
-          const medal = idx===0 ? '👑' : '🏅';
-          const row = document.createElement('div');
-          row.className = 'leader-item' + (isWinner ? ' winner' : '');
-          row.innerHTML = `
+          const medal    = idx === 0 ? '👑' : '🏅';
+          const row      = document.createElement('div');
+          row.className  = 'leader-item' + (isWinner ? ' winner' : '');
+          row.innerHTML  = `
             <div class="leader-left">
               <div class="medal" aria-hidden="true">${medal}</div>
               <div class="leader-name ${isWinner ? 'winner' : ''}">${e.name}</div>
             </div>
-            <div class="leader-pts">${e.pts}</div>
+            <div class="leader-pts">${e.pts} poin</div>
           `;
           leaderGrid.appendChild(row);
         });
 
-        leaderWinner.textContent = `Pemenang: ${state[wKey].name}`;
-
+        leaderWinner.textContent = `🎉 ${state[wKey].name} Menang!`;
         showOverlay(overlayLeader);
         confettiGold();
       });
 
-      btnAgain.addEventListener('click', ()=>{
-        overlayLeader.classList.remove('show');
-        // reset scores
-        state.p1.points = 0; state.p2.points = 0;
-        state.p1.name = 'PLAYER 1'; state.p2.name = 'PLAYER 2';
-        nameViewP1.textContent = state.p1.name;
-        nameViewP2.textContent = state.p2.name;
+      // ── MAIN LAGI ────────────────────────────────────────────
+      btnAgain.addEventListener('click', () => {
+        hideOverlay(overlayLeader);
+
+        // Reset semua skor & nama
+        state.p1 = { name: 'PLAYER 1', points: 0 };
+        state.p2 = { name: 'PLAYER 2', points: 0 };
+
+        nameViewP1.textContent = 'PLAYER 1';
+        nameViewP2.textContent = 'PLAYER 2';
         pointsElP1.textContent = '0';
         pointsElP2.textContent = '0';
-        hideOverlay(overlayLeader);
+
         resetRound();
       });
 
-      // mouse luxury movement
+      // ── CONFETTI ──────────────────────────────────────────────
+      function confettiGold(){
+        confettiEl.innerHTML = '';
+        const colors = [
+          'rgba(255,211,106,.95)',
+          'rgba(247,183,51,.95)',
+          'rgba(255,235,170,.95)',
+          'rgba(255,255,255,.80)',
+        ];
+        const W = window.innerWidth;
+        for(let i = 0; i < 140; i++){
+          const el  = document.createElement('i');
+          el.style.left             = Math.random() * W + 'px';
+          el.style.background       = colors[Math.floor(Math.random() * colors.length)];
+          el.style.animationDuration = (1.1 + Math.random() * 0.9) + 's';
+          el.style.animationDelay   = (Math.random() * 0.20) + 's';
+          el.style.width            = (6 + Math.random() * 6) + 'px';
+          el.style.height           = (10 + Math.random() * 8) + 'px';
+          el.style.borderRadius     = Math.random() > .4 ? '50%' : '3px';
+          el.style.transform        = `rotate(${Math.random()*180}deg)`;
+          confettiEl.appendChild(el);
+        }
+        setTimeout(() => { confettiEl.innerHTML = ''; }, 2500);
+      }
+
+      // ── LUXURY MOUSE PARALLAX ────────────────────────────────
       const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
       if(!prefersReduced){
-        document.addEventListener('mousemove', (e)=>{
-          const cards = [cardP1, cardP2];
-          cards.forEach(card=>{
+        document.addEventListener('mousemove', e => {
+          [cardP1, cardP2].forEach(card => {
             const r = card.getBoundingClientRect();
-            const within = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
-            if(!within) return;
+            const within = e.clientX >= r.left && e.clientX <= r.right &&
+                           e.clientY >= r.top  && e.clientY <= r.bottom;
+            if(!within){ card.style.transform = ''; return; }
             const cx = r.left + r.width/2;
-            const cy = r.top + r.height/2;
+            const cy = r.top  + r.height/2;
             const dx = (e.clientX - cx) / r.width;
             const dy = (e.clientY - cy) / r.height;
-            const rotateY = Math.max(-1, Math.min(1, dx)) * 6;
-            const rotateX = Math.max(-1, Math.min(1, dy)) * -5;
-            card.style.transform = `translateY(-3px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            const rY = Math.max(-1, Math.min(1, dx)) * 6;
+            const rX = Math.max(-1, Math.min(1, dy)) * -5;
+            card.style.transform = `translateY(-3px) rotateX(${rX}deg) rotateY(${rY}deg)`;
           });
         }, {passive:true});
 
-        document.addEventListener('mouseleave', ()=>{
-          [cardP1, cardP2].forEach(c=> c.style.transform='');
+        document.addEventListener('mouseleave', () => {
+          [cardP1, cardP2].forEach(c => c.style.transform = '');
         });
 
-        [btnChooseWinner, btnEnd].forEach(btn=>{
-          btn.addEventListener('pointermove', (e)=>{
+        [btnChooseWinner, btnEnd].forEach(btn => {
+          btn.addEventListener('pointermove', e => {
             const rect = btn.getBoundingClientRect();
-            const mx = ((e.clientX - rect.left) / rect.width) * 100;
-            const my = ((e.clientY - rect.top) / rect.height) * 100;
-            btn.style.setProperty('--mx', mx + '%');
-            btn.style.setProperty('--my', my + '%');
+            btn.style.setProperty('--mx', ((e.clientX - rect.left) / rect.width * 100) + '%');
+            btn.style.setProperty('--my', ((e.clientY - rect.top)  / rect.height * 100) + '%');
           }, {passive:true});
         });
       }
 
-      // Shimmer particles canvas
+      // ── SHIMMER CANVAS ────────────────────────────────────────
       const canvas = document.getElementById('shimmer');
-      const ctx = canvas.getContext('2d', { alpha: true });
-      const DPR = Math.min(2, window.devicePixelRatio || 1);
-      let w, h;
-
+      const ctx    = canvas ? canvas.getContext('2d') : null;
+      const DPR    = Math.min(2, window.devicePixelRatio || 1);
+      let cW, cH;
       const particles = [];
-      const settings = { count: 70, speed: 0.18, drift: 0.22, minR: 0.6, maxR: 1.8 };
 
       function rand(a,b){ return a + Math.random()*(b-a); }
 
-      function resize(){
-        w = window.innerWidth; h = window.innerHeight;
-        canvas.width = Math.floor(w * DPR);
-        canvas.height = Math.floor(h * DPR);
-        canvas.style.width = w + 'px';
-        canvas.style.height = h + 'px';
+      function resizeCanvas(){
+        cW = window.innerWidth; cH = window.innerHeight;
+        canvas.width  = Math.floor(cW * DPR);
+        canvas.height = Math.floor(cH * DPR);
+        canvas.style.width  = cW + 'px';
+        canvas.style.height = cH + 'px';
         ctx.setTransform(DPR,0,0,DPR,0,0);
       }
 
-      function resetParticles(){
+      function spawnParticles(){
         particles.length = 0;
-        for(let i=0;i<settings.count;i++){
+        for(let i=0;i<70;i++){
           particles.push({
-            x: Math.random()*w,
-            y: Math.random()*h,
-            vx: rand(-settings.drift, settings.drift),
-            vy: rand(0.08, 0.35),
-            r: rand(settings.minR, settings.maxR),
-            a: rand(0.05, 0.18),
-            tw: rand(0.6, 1.6)
+            x: Math.random()*cW, y: Math.random()*cH,
+            vx: rand(-.22, .22), vy: rand(.08, .35),
+            r:  rand(.6, 1.8),   a: rand(.05, .18),
+            tw: rand(.6, 1.6),
           });
         }
       }
 
-      function draw(ts){
+      function drawCanvas(ts){
         const t = ts * 0.001;
-        ctx.clearRect(0,0,w,h);
+        ctx.clearRect(0,0,cW,cH);
 
-        const mist = ctx.createRadialGradient(w*0.5, h*0.18, 0, w*0.5, h*0.18, Math.max(w,h));
-        mist.addColorStop(0, 'rgba(255,211,106,0.06)');
-        mist.addColorStop(0.35,'rgba(255,211,106,0.02)');
-        mist.addColorStop(1, 'rgba(0,0,0,0)');
+        const mist = ctx.createRadialGradient(cW*.5, cH*.18, 0, cW*.5, cH*.18, Math.max(cW,cH));
+        mist.addColorStop(0,   'rgba(255,211,106,0.06)');
+        mist.addColorStop(.35, 'rgba(255,211,106,0.02)');
+        mist.addColorStop(1,   'rgba(0,0,0,0)');
         ctx.fillStyle = mist;
-        ctx.fillRect(0,0,w,h);
+        ctx.fillRect(0,0,cW,cH);
 
         for(const p of particles){
-          p.x += p.vx;
-          p.y += p.vy * settings.speed;
-          if(p.y > h + 20){ p.y = -20; p.x = Math.random()*w; }
-          const twinkle = 0.5 + 0.5*Math.sin(t * p.tw + (p.x+p.y)*0.01);
-          const alpha = p.a * twinkle;
-          const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r*6);
-          g.addColorStop(0, `rgba(255,211,106,${alpha})`);
-          g.addColorStop(0.3, `rgba(255,211,106,${alpha*0.45})`);
-          g.addColorStop(1, 'rgba(255,211,106,0)');
+          p.x += p.vx; p.y += p.vy * 0.18;
+          if(p.y > cH + 20){ p.y = -20; p.x = Math.random()*cW; }
+          const twinkle = 0.5 + 0.5 * Math.sin(t * p.tw + (p.x+p.y)*0.01);
+          const alpha   = p.a * twinkle;
+          const g = ctx.createRadialGradient(p.x,p.y,0, p.x,p.y, p.r*6);
+          g.addColorStop(0,   `rgba(255,211,106,${alpha})`);
+          g.addColorStop(.3,  `rgba(255,211,106,${alpha*.45})`);
+          g.addColorStop(1,   'rgba(255,211,106,0)');
           ctx.fillStyle = g;
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.r*3, 0, Math.PI*2);
           ctx.fill();
         }
-        requestAnimationFrame(draw);
+        requestAnimationFrame(drawCanvas);
       }
 
-      if(!prefersReduced){
-        resize();
-        resetParticles();
-        window.addEventListener('resize', ()=>{ resize(); resetParticles(); }, {passive:true});
-        requestAnimationFrame(draw);
-      } else {
-        resize();
-        ctx.clearRect(0,0,w,h);
+      if(!prefersReduced && ctx){
+        resizeCanvas();
+        spawnParticles();
+        window.addEventListener('resize', () => { resizeCanvas(); spawnParticles(); }, {passive:true});
+        requestAnimationFrame(drawCanvas);
       }
 
-      // Init UI
-      setWinnerUI();
+      // ── INIT ──────────────────────────────────────────────────
       resetRound();
 
     })();
   </script>
 </body>
 </html>
-
